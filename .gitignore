@@ -1,0 +1,4 @@
+*.swp
+tags
+cscope.out
+build/*
