@@ -75,10 +75,11 @@ RTOSINCDIR = $(RTOSSRCDIR)/include
 # use file-extension c for "c-only"-files
 
 ## MAIN:
-SRC =  main.c
+SRC = main.c
 
 ## COMMON:
-#SRC =  $(COMMONDIR)/tprintf.c
+SRC += $(COMMONDIR)/fault.c
+#SRC += $(COMMONDIR)/tprintf.c
 
 ## CMSIS for STM32
 SRC += $(CMSISDIR)/CoreSupport/core_cm3.c
@@ -383,12 +384,11 @@ end:
 	@echo $(MSG_END)
 
 # Display sizes of sections.
-ELFSIZE = $(SIZE) -A  $(OUTDIR)/$(TARGET).elf
-##ELFSIZE = $(SIZE) --format=Berkeley --common $(OUTDIR)/$(TARGET).elf
+ELFSIZE = $(SIZE) -B $(OUTDIR)/$(TARGET).elf
 sizebefore:
 	@if [ -f  $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); echo; fi
 
-sizeafter:
+sizeafter: elf
 	@if [ -f  $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
 
 # Display compiler version information.

@@ -39,11 +39,6 @@ static void main_noreturn(void) NORETURN;
 static BitAction led_user = Bit_SET;
 static BitAction led_rtc = Bit_SET;
 
-void assert_failed(uint8_t *function, uint32_t line)
-{
-	while (1);
-}
-
 /**
  * Main function
  */
