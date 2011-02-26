@@ -83,7 +83,9 @@ SRC += $(COMMONDIR)/fault.c
 
 ## CMSIS for STM32
 SRC += $(CMSISDIR)/CoreSupport/core_cm3.c
-SRC += $(CMSISDIR)/DeviceSupport/ST/STM32F10x/system_stm32f10x.c
+
+## STM32:
+SRC += $(STM32DIR)/system_stm32f10x.c
 
 ## Used parts of the STM-Library
 #SRC += $(STMSPDSRCDIR)/stm32f10x_adc.c
@@ -191,7 +193,7 @@ DEBUGF = gdb
 
 # Place project-specific -D (define) and/or
 # -U options for C here.
-CDEFS = -DSTM32F10X_$(MODEL,UC)
+CDEFS = -DSTM32F10X_$(shell echo $(MODEL) | tr a-z A-Z)
 CDEFS += -DUSE_STDPERIPH_DRIVER
 CDEFS += -DUSE_$(BOARD)
 CDEFS += -DHSE_VALUE=$(F_XTAL)UL
