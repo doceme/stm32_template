@@ -1,5 +1,5 @@
 /*
-    FreeRTOS V6.0.5 - Copyright (C) 2010 Real Time Engineers Ltd.
+    FreeRTOS V6.1.1 - Copyright (C) 2011 Real Time Engineers Ltd.
 
     ***************************************************************************
     *                                                                         *
@@ -10,7 +10,7 @@
     *    + Looking for basic training,                                        *
     *    + Wanting to improve your FreeRTOS skills and productivity           *
     *                                                                         *
-    * then take a look at the FreeRTOS eBook                                  *
+    * then take a look at the FreeRTOS books - available as PDF or paperback  *
     *                                                                         *
     *        "Using the FreeRTOS Real Time Kernel - a Practical Guide"        *
     *                  http://www.FreeRTOS.org/Documentation                  *
@@ -33,9 +33,9 @@
     FreeRTOS is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
     FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-    more details. You should have received a copy of the GNU General Public 
-    License and the FreeRTOS license exception along with FreeRTOS; if not it 
-    can be viewed here: http://www.freertos.org/a00114.html and also obtained 
+    more details. You should have received a copy of the GNU General Public
+    License and the FreeRTOS license exception along with FreeRTOS; if not it
+    can be viewed here: http://www.freertos.org/a00114.html and also obtained
     by writing to Richard Barry, contact details for whom are available on the
     FreeRTOS WEB site.
 
@@ -53,7 +53,7 @@
 
 
 #ifndef INC_FREERTOS_H
-	#error "#include FreeRTOS.h" must appear in source files before "#include task.h"
+	#error "include FreeRTOS.h must appear in source files before include task.h"
 #endif
 
 
@@ -72,7 +72,7 @@ extern "C" {
  * MACROS AND DEFINITIONS
  *----------------------------------------------------------*/
 
-#define tskKERNEL_VERSION_NUMBER "V6.0.4"
+#define tskKERNEL_VERSION_NUMBER "V6.1.1"
 
 /**
  * task. h
@@ -206,10 +206,10 @@ typedef struct xTASK_PARAMTERS
 						  );</pre>
  *
  * Create a new task and add it to the list of tasks that are ready to run.
- * 
+ *
  * xTaskCreate() can only be used to create a task that has unrestricted
  * access to the entire microcontroller memory map.  Systems that include MPU
- * support can alternatively create an MPU constrained task using 
+ * support can alternatively create an MPU constrained task using
  * xTaskCreateRestricted().
  *
  * @param pvTaskCode Pointer to the task entry function.  Tasks
@@ -285,7 +285,7 @@ typedef struct xTASK_PARAMTERS
  *
  * @param pxTaskDefinition Pointer to a structure that contains a member
  * for each of the normal xTaskCreate() parameters (see the xTaskCreate() API
- * documentation) plus an optional stack buffer and the memory region 
+ * documentation) plus an optional stack buffer and the memory region
  * definitions.
  *
  * @param pxCreatedTask Used to pass back a handle by which the created task
@@ -348,7 +348,7 @@ xTaskHandle xHandle;
  * Memory regions are assigned to a restricted task when the task is created by
  * a call to xTaskCreateRestricted().  These regions can be redefined using
  * vTaskAllocateMPURegions().
- * 
+ *
  * @param xTask The handle of the task being updated.
  *
  * @param xRegions A pointer to an xMemoryRegion structure that contains the
@@ -371,7 +371,7 @@ static const xMemoryRegion xAltRegions[ portNUM_CONFIGURABLE_REGIONS ] =
 void vATask( void *pvParameters )
 {
 	// This task was created such that it has access to certain regions of
-	// memory as defined by the MPU configuration.  At some point it is 
+	// memory as defined by the MPU configuration.  At some point it is
 	// desired that these MPU regions are replaced with that defined in the
 	// xAltRegions const struct above.  Use a call to vTaskAllocateMPURegions()
 	// for this purpose.  NULL is used as the task handle to indicate that this
@@ -963,7 +963,7 @@ signed portBASE_TYPE xTaskIsTaskSuspended( xTaskHandle xTask ) PRIVILEGED_FUNCTI
 
 /**
  * task. h
- * <PRE>volatile portTickType xTaskGetTickCount( void );</PRE>
+ * <PRE>portTickType xTaskGetTickCount( void );</PRE>
  *
  * @return The count of ticks since vTaskStartScheduler was called.
  *
@@ -971,6 +971,22 @@ signed portBASE_TYPE xTaskIsTaskSuspended( xTaskHandle xTask ) PRIVILEGED_FUNCTI
  * \ingroup TaskUtils
  */
 portTickType xTaskGetTickCount( void ) PRIVILEGED_FUNCTION;
+
+/**
+ * task. h
+ * <PRE>portTickType xTaskGetTickCountFromISR( void );</PRE>
+ *
+ * @return The count of ticks since vTaskStartScheduler was called.
+ *
+ * This is a version of xTaskGetTickCount() that is safe to be called from an
+ * ISR - provided that portTickType is the natural word size of the
+ * microcontroller being used or interrupt nesting is either not supported or
+ * not being used.
+ *
+ * \page xTaskGetTickCount xTaskGetTickCount
+ * \ingroup TaskUtils
+ */
+portTickType xTaskGetTickCountFromISR( void ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
@@ -1086,9 +1102,9 @@ unsigned long ulTaskEndTrace( void ) PRIVILEGED_FUNCTION;
  * this function to be available.
  *
  * Returns the high water mark of the stack associated with xTask.  That is,
- * the minimum free stack space there has been (in bytes) since the task
- * started.  The smaller the returned number the closer the task has come
- * to overflowing its stack.
+ * the minimum free stack space there has been (in words, so on a 32 bit machine
+ * a value of 1 means 4 bytes) since the task started.  The smaller the returned 
+ * number the closer the task has come to overflowing its stack.
  *
  * @param xTask Handle of the task associated with the stack to be checked.
  * Set xTask to NULL to check the stack of the calling task.
@@ -1098,23 +1114,33 @@ unsigned long ulTaskEndTrace( void ) PRIVILEGED_FUNCTION;
  */
 unsigned portBASE_TYPE uxTaskGetStackHighWaterMark( xTaskHandle xTask ) PRIVILEGED_FUNCTION;
 
-/**
- * task.h
- * <pre>void vTaskSetApplicationTaskTag( xTaskHandle xTask, pdTASK_HOOK_CODE pxHookFunction );</pre>
- *
- * Sets pxHookFunction to be the task hook function used by the task xTask.
- * Passing xTask as NULL has the effect of setting the calling tasks hook
- * function.
- */
-void vTaskSetApplicationTaskTag( xTaskHandle xTask, pdTASK_HOOK_CODE pxHookFunction ) PRIVILEGED_FUNCTION;
+/* When using trace macros it is sometimes necessary to include tasks.h before
+FreeRTOS.h.  When this is done pdTASK_HOOK_CODE will not yet have been defined,
+so the following two prototypes will cause a compilation error.  This can be
+fixed by simply guarding against the inclusion of these two prototypes unless
+they are explicitly required by the configUSE_APPLICATION_TASK_TAG configuration
+constant. */
+#ifdef configUSE_APPLICATION_TASK_TAG
+	#if configUSE_APPLICATION_TASK_TAG == 1
+		/**
+		 * task.h
+		 * <pre>void vTaskSetApplicationTaskTag( xTaskHandle xTask, pdTASK_HOOK_CODE pxHookFunction );</pre>
+		 *
+		 * Sets pxHookFunction to be the task hook function used by the task xTask.
+		 * Passing xTask as NULL has the effect of setting the calling tasks hook
+		 * function.
+		 */
+		void vTaskSetApplicationTaskTag( xTaskHandle xTask, pdTASK_HOOK_CODE pxHookFunction ) PRIVILEGED_FUNCTION;
 
-/**
- * task.h
- * <pre>void xTaskGetApplicationTaskTag( xTaskHandle xTask );</pre>
- *
- * Returns the pxHookFunction value assigned to the task xTask.
- */
-pdTASK_HOOK_CODE xTaskGetApplicationTaskTag( xTaskHandle xTask ) PRIVILEGED_FUNCTION;
+		/**
+		 * task.h
+		 * <pre>void xTaskGetApplicationTaskTag( xTaskHandle xTask );</pre>
+		 *
+		 * Returns the pxHookFunction value assigned to the task xTask.
+		 */
+		pdTASK_HOOK_CODE xTaskGetApplicationTaskTag( xTaskHandle xTask ) PRIVILEGED_FUNCTION;
+	#endif /* configUSE_APPLICATION_TASK_TAG ==1 */
+#endif /* ifdef configUSE_APPLICATION_TASK_TAG */
 
 /**
  * task.h
