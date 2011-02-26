@@ -2,8 +2,8 @@
  ******************************************************************************
  * @file      startup_stm32f10x_cl.s
  * @author    MCD Application Team
- * @version   V3.3.0
- * @date      04/16/2010
+ * @version   V3.4.0
+ * @date      10/15/2010
  * @brief     STM32F10x Connectivity line Devices vector table for Atollic
  *            toolchain.
  *            This module performs:
@@ -35,7 +35,6 @@
 	.thumb
 
 .global	g_pfnVectors
-.global	SystemInit_ExtMemCtl_Dummy
 .global	Default_Handler
 
 /* start address for the initialization values of the .data section.

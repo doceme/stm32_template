@@ -2,8 +2,8 @@
  ******************************************************************************
  * @file      startup_stm32f10x_md.s
  * @author    MCD Application Team
- * @version   V3.3.0
- * @date      04/16/2010
+ * @version   V3.4.0
+ * @date      10/15/2010
  * @brief     STM32F10x Medium Density Devices vector table for RIDE7 toolchain.
  *            This module performs:
  *                - Set the initial SP

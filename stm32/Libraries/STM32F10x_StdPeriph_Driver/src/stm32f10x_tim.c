@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_tim.c
   * @author  MCD Application Team
-  * @version V3.3.0
-  * @date    04/16/2010
+  * @version V3.4.0
+  * @date    10/15/2010
   * @brief   This file provides all the TIM firmware functions.
   ******************************************************************************
   * @copy
@@ -585,12 +585,20 @@ void TIM_OC4Init(TIM_TypeDef* TIMx, TIM_OCInitTypeDef* TIM_OCInitStruct)
 void TIM_ICInit(TIM_TypeDef* TIMx, TIM_ICInitTypeDef* TIM_ICInitStruct)
 {
   /* Check the parameters */
-  assert_param(IS_TIM_CHANNEL(TIM_ICInitStruct->TIM_Channel));
-  assert_param(IS_TIM_IC_POLARITY(TIM_ICInitStruct->TIM_ICPolarity));
+  assert_param(IS_TIM_CHANNEL(TIM_ICInitStruct->TIM_Channel));  
   assert_param(IS_TIM_IC_SELECTION(TIM_ICInitStruct->TIM_ICSelection));
   assert_param(IS_TIM_IC_PRESCALER(TIM_ICInitStruct->TIM_ICPrescaler));
   assert_param(IS_TIM_IC_FILTER(TIM_ICInitStruct->TIM_ICFilter));
   
+  if((TIMx == TIM1) || (TIMx == TIM8) || (TIMx == TIM2) || (TIMx == TIM3) ||
+     (TIMx == TIM4) ||(TIMx == TIM5))
+  {
+    assert_param(IS_TIM_IC_POLARITY(TIM_ICInitStruct->TIM_ICPolarity));
+  }
+  else
+  {
+    assert_param(IS_TIM_IC_POLARITY_LITE(TIM_ICInitStruct->TIM_ICPolarity));
+  }
   if (TIM_ICInitStruct->TIM_Channel == TIM_Channel_1)
   {
     assert_param(IS_TIM_LIST8_PERIPH(TIMx));
@@ -2699,9 +2707,21 @@ static void TI1_Config(TIM_TypeDef* TIMx, uint16_t TIM_ICPolarity, uint16_t TIM_
   /* Select the Input and set the filter */
   tmpccmr1 &= (uint16_t)(((uint16_t)~((uint16_t)TIM_CCMR1_CC1S)) & ((uint16_t)~((uint16_t)TIM_CCMR1_IC1F)));
   tmpccmr1 |= (uint16_t)(TIM_ICSelection | (uint16_t)(TIM_ICFilter << (uint16_t)4));
-  /* Select the Polarity and set the CC1E Bit */
-  tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC1P));
-  tmpccer |= (uint16_t)(TIM_ICPolarity | (uint16_t)TIM_CCER_CC1E);
+  
+  if((TIMx == TIM1) || (TIMx == TIM8) || (TIMx == TIM2) || (TIMx == TIM3) ||
+     (TIMx == TIM4) ||(TIMx == TIM5))
+  {
+    /* Select the Polarity and set the CC1E Bit */
+    tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC1P));
+    tmpccer |= (uint16_t)(TIM_ICPolarity | (uint16_t)TIM_CCER_CC1E);
+  }
+  else
+  {
+    /* Select the Polarity and set the CC1E Bit */
+    tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC1P | TIM_CCER_CC1NP));
+    tmpccer |= (uint16_t)(TIM_ICPolarity | (uint16_t)TIM_CCER_CC1E);
+  }
+
   /* Write to TIMx CCMR1 and CCER registers */
   TIMx->CCMR1 = tmpccmr1;
   TIMx->CCER = tmpccer;
@@ -2736,9 +2756,21 @@ static void TI2_Config(TIM_TypeDef* TIMx, uint16_t TIM_ICPolarity, uint16_t TIM_
   tmpccmr1 &= (uint16_t)(((uint16_t)~((uint16_t)TIM_CCMR1_CC2S)) & ((uint16_t)~((uint16_t)TIM_CCMR1_IC2F)));
   tmpccmr1 |= (uint16_t)(TIM_ICFilter << 12);
   tmpccmr1 |= (uint16_t)(TIM_ICSelection << 8);
-  /* Select the Polarity and set the CC2E Bit */
-   tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC2P));
-  tmpccer |=  (uint16_t)(tmp | (uint16_t)TIM_CCER_CC2E);
+  
+  if((TIMx == TIM1) || (TIMx == TIM8) || (TIMx == TIM2) || (TIMx == TIM3) ||
+     (TIMx == TIM4) ||(TIMx == TIM5))
+  {
+    /* Select the Polarity and set the CC2E Bit */
+    tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC2P));
+    tmpccer |=  (uint16_t)(tmp | (uint16_t)TIM_CCER_CC2E);
+  }
+  else
+  {
+    /* Select the Polarity and set the CC2E Bit */
+    tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC2P | TIM_CCER_CC2NP));
+    tmpccer |= (uint16_t)(TIM_ICPolarity | (uint16_t)TIM_CCER_CC2E);
+  }
+  
   /* Write to TIMx CCMR1 and CCER registers */
   TIMx->CCMR1 = tmpccmr1 ;
   TIMx->CCER = tmpccer;
@@ -2772,16 +2804,28 @@ static void TI3_Config(TIM_TypeDef* TIMx, uint16_t TIM_ICPolarity, uint16_t TIM_
   /* Select the Input and set the filter */
   tmpccmr2 &= (uint16_t)(((uint16_t)~((uint16_t)TIM_CCMR2_CC3S)) & ((uint16_t)~((uint16_t)TIM_CCMR2_IC3F)));
   tmpccmr2 |= (uint16_t)(TIM_ICSelection | (uint16_t)(TIM_ICFilter << (uint16_t)4));
-  /* Select the Polarity and set the CC3E Bit */
-  tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC3P));
-  tmpccer |= (uint16_t)(tmp | (uint16_t)TIM_CCER_CC3E);
+    
+  if((TIMx == TIM1) || (TIMx == TIM8) || (TIMx == TIM2) || (TIMx == TIM3) ||
+     (TIMx == TIM4) ||(TIMx == TIM5))
+  {
+    /* Select the Polarity and set the CC3E Bit */
+    tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC3P));
+    tmpccer |= (uint16_t)(tmp | (uint16_t)TIM_CCER_CC3E);
+  }
+  else
+  {
+    /* Select the Polarity and set the CC3E Bit */
+    tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC3P | TIM_CCER_CC3NP));
+    tmpccer |= (uint16_t)(TIM_ICPolarity | (uint16_t)TIM_CCER_CC3E);
+  }
+  
   /* Write to TIMx CCMR2 and CCER registers */
   TIMx->CCMR2 = tmpccmr2;
   TIMx->CCER = tmpccer;
 }
 
 /**
-  * @brief  Configure the TI1 as Input.
+  * @brief  Configure the TI4 as Input.
   * @param  TIMx: where x can be 1, 2, 3, 4, 5 or 8 to select the TIM peripheral.
   * @param  TIM_ICPolarity : The Input Polarity.
   *   This parameter can be one of the following values:
@@ -2810,10 +2854,20 @@ static void TI4_Config(TIM_TypeDef* TIMx, uint16_t TIM_ICPolarity, uint16_t TIM_
   tmpccmr2 &= (uint16_t)((uint16_t)(~(uint16_t)TIM_CCMR2_CC4S) & ((uint16_t)~((uint16_t)TIM_CCMR2_IC4F)));
   tmpccmr2 |= (uint16_t)(TIM_ICSelection << 8);
   tmpccmr2 |= (uint16_t)(TIM_ICFilter << 12);
-
-  /* Select the Polarity and set the CC4E Bit */
-  tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC4P));
-  tmpccer |= (uint16_t)(tmp | (uint16_t)TIM_CCER_CC4E);
+  
+  if((TIMx == TIM1) || (TIMx == TIM8) || (TIMx == TIM2) || (TIMx == TIM3) ||
+     (TIMx == TIM4) ||(TIMx == TIM5))
+  {
+    /* Select the Polarity and set the CC4E Bit */
+    tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC4P));
+    tmpccer |= (uint16_t)(tmp | (uint16_t)TIM_CCER_CC4E);
+  }
+  else
+  {
+    /* Select the Polarity and set the CC4E Bit */
+    tmpccer &= (uint16_t)~((uint16_t)(TIM_CCER_CC3P | TIM_CCER_CC4NP));
+    tmpccer |= (uint16_t)(TIM_ICPolarity | (uint16_t)TIM_CCER_CC4E);
+  }
   /* Write to TIMx CCMR2 and CCER registers */
   TIMx->CCMR2 = tmpccmr2;
   TIMx->CCER = tmpccer;

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_dbgmcu.c
   * @author  MCD Application Team
-  * @version V3.3.0
-  * @date    04/16/2010
+  * @version V3.4.0
+  * @date    10/15/2010
   * @brief   This file provides all the DBGMCU firmware functions.
   ******************************************************************************
   * @copy
@@ -42,7 +42,7 @@
   * @{
   */
 
-#define IDCODE_DEVID_Mask    ((uint32_t)0x00000FFF)
+#define IDCODE_DEVID_MASK    ((uint32_t)0x00000FFF)
 /**
   * @}
   */
@@ -92,7 +92,7 @@ uint32_t DBGMCU_GetREVID(void)
   */
 uint32_t DBGMCU_GetDEVID(void)
 {
-   return(DBGMCU->IDCODE & IDCODE_DEVID_Mask);
+   return(DBGMCU->IDCODE & IDCODE_DEVID_MASK);
 }
 
 /**

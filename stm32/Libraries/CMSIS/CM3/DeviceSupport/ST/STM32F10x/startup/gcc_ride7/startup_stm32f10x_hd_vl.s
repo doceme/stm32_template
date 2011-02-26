@@ -1,16 +1,18 @@
 /**
  ******************************************************************************
- * @file      startup_stm32f10x_md_vl.s
+ * @file      startup_stm32f10x_hd_vl.s
  * @author    MCD Application Team
  * @version   V3.4.0
  * @date      10/15/2010
- * @brief     STM32F10x Medium Density Value Line Devices vector table for RIDE7
+ * @brief     STM32F10x High Density Value Line Devices vector table for RIDE7
  *            toolchain.
  *            This module performs:
  *                - Set the initial SP
  *                - Set the initial PC == Reset_Handler,
  *                - Set the vector table entries with the exceptions ISR address
- *                - Configure the clock system                 
+ *                - Configure the clock system and the external SRAM mounted on 
+ *                  STM32100E-EVAL board to be used as data memory (optional, 
+ *                  to be enabled by user)               
  *                - Branches to main in the C library (which eventually
  *                  calls main()).
  *            After Reset the Cortex-M3 processor is in Thread mode,
@@ -180,19 +182,24 @@ g_pfnVectors:
   .word  EXTI15_10_IRQHandler
   .word  RTCAlarm_IRQHandler
   .word  CEC_IRQHandler  
+  .word  TIM12_IRQHandler
+  .word  TIM13_IRQHandler
+  .word  TIM14_IRQHandler
   .word  0
   .word  0
+  .word  FSMC_IRQHandler
   .word  0
-  .word  0
-  .word  0
-  .word  0
-  .word  0
-  .word  0  
-  .word  0
-  .word  0
-  .word  0
+  .word  TIM5_IRQHandler
+  .word  SPI3_IRQHandler
+  .word  UART4_IRQHandler
+  .word  UART5_IRQHandler
   .word  TIM6_DAC_IRQHandler
   .word  TIM7_IRQHandler  
+  .word  DMA2_Channel1_IRQHandler
+  .word  DMA2_Channel2_IRQHandler
+  .word  DMA2_Channel3_IRQHandler
+  .word  DMA2_Channel4_5_IRQHandler
+  .word  DMA2_Channel5_IRQHandler
   .word  0
   .word  0
   .word  0
@@ -236,8 +243,8 @@ g_pfnVectors:
   .word  0
   .word  0
   .word  0
-  .word  BootRAM          /* @0x01CC. This is for boot in RAM mode for 
-                            STM32F10x Medium Value Line Density devices. */
+  .word  BootRAM       /* @0x1E0. This is for boot in RAM mode for 
+                         STM32F10x High Density Value line devices. */
    
 /*******************************************************************************
 * Provide weak aliases for each Exception handler to the Default_Handler. 
@@ -389,10 +396,49 @@ g_pfnVectors:
   .weak  CEC_IRQHandler
   .thumb_set CEC_IRQHandler,Default_Handler
 
+  .weak  TIM12_IRQHandler
+  .thumb_set TIM12_IRQHandler,Default_Handler
+
+  .weak  TIM13_IRQHandler
+  .thumb_set TIM13_IRQHandler,Default_Handler
+
+  .weak  TIM14_IRQHandler
+  .thumb_set TIM14_IRQHandler,Default_Handler
+
+  .weak  FSMC_IRQHandler
+  .thumb_set FSMC_IRQHandler,Default_Handler
+
+  .weak  TIM5_IRQHandler
+  .thumb_set TIM5_IRQHandler,Default_Handler
+
+  .weak  SPI3_IRQHandler
+  .thumb_set SPI3_IRQHandler,Default_Handler
+
+  .weak  UART4_IRQHandler
+  .thumb_set UART4_IRQHandler,Default_Handler
+
+  .weak  UART5_IRQHandler
+  .thumb_set UART5_IRQHandler,Default_Handler
+  
   .weak  TIM6_DAC_IRQHandler
   .thumb_set TIM6_DAC_IRQHandler,Default_Handler
 
   .weak  TIM7_IRQHandler
-  .thumb_set TIM7_IRQHandler,Default_Handler  
+  .thumb_set TIM7_IRQHandler,Default_Handler 
+
+  .weak  DMA2_Channel1_IRQHandler
+  .thumb_set DMA2_Channel1_IRQHandler,Default_Handler
+
+  .weak  DMA2_Channel2_IRQHandler
+  .thumb_set DMA2_Channel2_IRQHandler,Default_Handler
+
+  .weak  DMA2_Channel3_IRQHandler
+  .thumb_set DMA2_Channel3_IRQHandler,Default_Handler
+
+  .weak  DMA2_Channel4_5_IRQHandler
+  .thumb_set DMA2_Channel4_5_IRQHandler,Default_Handler
+
+  .weak  DMA2_Channel5_IRQHandler
+  .thumb_set DMA2_Channel5_IRQHandler,Default_Handler      
   
 /******************* (C) COPYRIGHT 2010 STMicroelectronics *****END OF FILE****/

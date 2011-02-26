@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_flash.c
   * @author  MCD Application Team
-  * @version V3.3.0
-  * @date    04/16/2010
+  * @version V3.4.0
+  * @date    10/15/2010
   * @brief   This file provides all the FLASH firmware functions.
   ******************************************************************************
   * @copy
@@ -435,11 +435,9 @@ FLASH_Status FLASH_ErasePage(uint32_t Page_Address)
     
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastBank1Operation(EraseTimeout);
-      if(status != FLASH_TIMEOUT)
-      {
-        /* if the erase operation is completed, disable the PER Bit */
-        FLASH->CR &= CR_PER_Reset;
-      }
+
+      /* Disable the PER Bit */
+      FLASH->CR &= CR_PER_Reset;
     }
   }
   else
@@ -455,11 +453,9 @@ FLASH_Status FLASH_ErasePage(uint32_t Page_Address)
     
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastBank2Operation(EraseTimeout);
-      if(status != FLASH_TIMEOUT)
-      {
-        /* if the erase operation is completed, disable the PER Bit */
-        FLASH->CR2 &= CR_PER_Reset;
-      }
+      
+      /* Disable the PER Bit */
+      FLASH->CR2 &= CR_PER_Reset;
     }
   }
 #else
@@ -475,11 +471,9 @@ FLASH_Status FLASH_ErasePage(uint32_t Page_Address)
     
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastOperation(EraseTimeout);
-    if(status != FLASH_TIMEOUT)
-    {
-      /* if the erase operation is completed, disable the PER Bit */
-      FLASH->CR &= CR_PER_Reset;
-    }
+    
+    /* Disable the PER Bit */
+    FLASH->CR &= CR_PER_Reset;
   }
 #endif /* STM32F10X_XL */
 
@@ -510,11 +504,9 @@ FLASH_Status FLASH_EraseAllPages(void)
     
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastBank1Operation(EraseTimeout);
-    if(status != FLASH_TIMEOUT)
-    {
-      /* if the erase operation is completed, disable the MER Bit */
-      FLASH->CR &= CR_MER_Reset;
-    }
+    
+    /* Disable the MER Bit */
+    FLASH->CR &= CR_MER_Reset;
   }    
   if(status == FLASH_COMPLETE)
   {
@@ -524,11 +516,9 @@ FLASH_Status FLASH_EraseAllPages(void)
     
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastBank2Operation(EraseTimeout);
-    if(status != FLASH_TIMEOUT)
-    {
-      /* if the erase operation is completed, disable the MER Bit */
-      FLASH->CR2 &= CR_MER_Reset;
-    }
+    
+    /* Disable the MER Bit */
+    FLASH->CR2 &= CR_MER_Reset;
   }
 #else
   /* Wait for last operation to be completed */
@@ -541,11 +531,9 @@ FLASH_Status FLASH_EraseAllPages(void)
     
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastOperation(EraseTimeout);
-    if(status != FLASH_TIMEOUT)
-    {
-      /* if the erase operation is completed, disable the MER Bit */
-      FLASH->CR &= CR_MER_Reset;
-    }
+
+    /* Disable the MER Bit */
+    FLASH->CR &= CR_MER_Reset;
   }
 #endif /* STM32F10X_XL */
 
@@ -577,11 +565,9 @@ FLASH_Status FLASH_EraseAllBank1Pages(void)
     
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastBank1Operation(EraseTimeout);
-    if(status != FLASH_TIMEOUT)
-    {
-      /* if the erase operation is completed, disable the MER Bit */
-      FLASH->CR &= CR_MER_Reset;
-    }
+    
+    /* Disable the MER Bit */
+    FLASH->CR &= CR_MER_Reset;
   }    
   /* Return the Erase Status */
   return status;
@@ -609,11 +595,9 @@ FLASH_Status FLASH_EraseAllBank2Pages(void)
     
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastBank2Operation(EraseTimeout);
-    if(status != FLASH_TIMEOUT)
-    {
-      /* if the erase operation is completed, disable the MER Bit */
-      FLASH->CR2 &= CR_MER_Reset;
-    }
+
+    /* Disable the MER Bit */
+    FLASH->CR2 &= CR_MER_Reset;
   }    
   /* Return the Erase Status */
   return status;
@@ -727,19 +711,13 @@ FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
         /* Wait for last operation to be completed */
         status = FLASH_WaitForLastOperation(ProgramTimeout);
         
-        if(status != FLASH_TIMEOUT)
-        {
-          /* Disable the PG Bit */
-          FLASH->CR &= CR_PG_Reset;
-        }
+        /* Disable the PG Bit */
+        FLASH->CR &= CR_PG_Reset;
       }
       else
       {
-        if (status != FLASH_TIMEOUT)
-        {
-          /* Disable the PG Bit */
-          FLASH->CR &= CR_PG_Reset;
-        }
+        /* Disable the PG Bit */
+        FLASH->CR &= CR_PG_Reset;
        }
     }
   }
@@ -758,20 +736,14 @@ FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
 
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastBank1Operation(ProgramTimeout);
-
-      if(status != FLASH_TIMEOUT)
-      {
-        /* Disable the PG Bit */
-        FLASH->CR &= CR_PG_Reset;
-      }
+      
+	  /* Disable the PG Bit */
+      FLASH->CR &= CR_PG_Reset;
     }
     else
     {
-      if (status != FLASH_TIMEOUT)
-      {
-        /* Disable the PG Bit */
-        FLASH->CR &= CR_PG_Reset;
-      }
+      /* Disable the PG Bit */
+      FLASH->CR &= CR_PG_Reset;
     }
 
     /* Wait for last operation to be completed */
@@ -789,19 +761,13 @@ FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastBank2Operation(ProgramTimeout);
         
-      if(status != FLASH_TIMEOUT)
-      {
-        /* Disable the PG Bit */
-        FLASH->CR2 &= CR_PG_Reset;
-      }
+      /* Disable the PG Bit */
+      FLASH->CR2 &= CR_PG_Reset;
     }
     else
     {
-      if (status != FLASH_TIMEOUT)
-      {
-        /* Disable the PG Bit */
-        FLASH->CR2 &= CR_PG_Reset;
-      }
+      /* Disable the PG Bit */
+      FLASH->CR2 &= CR_PG_Reset;
     }
   }
   else
@@ -830,19 +796,13 @@ FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
         /* Wait for last operation to be completed */
         status = FLASH_WaitForLastBank2Operation(ProgramTimeout);
         
-        if(status != FLASH_TIMEOUT)
-        {
-          /* Disable the PG Bit */
-          FLASH->CR2 &= CR_PG_Reset;
-        }
+        /* Disable the PG Bit */
+        FLASH->CR2 &= CR_PG_Reset;
       }
       else
       {
-        if (status != FLASH_TIMEOUT)
-        {
-          /* Disable the PG Bit */
-          FLASH->CR2 &= CR_PG_Reset;
-        }
+        /* Disable the PG Bit */
+        FLASH->CR2 &= CR_PG_Reset;
       }
     }
   }
@@ -871,19 +831,13 @@ FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastOperation(ProgramTimeout);
         
-      if(status != FLASH_TIMEOUT)
-      {
-        /* Disable the PG Bit */
-        FLASH->CR &= CR_PG_Reset;
-      }
+      /* Disable the PG Bit */
+      FLASH->CR &= CR_PG_Reset;
     }
     else
     {
-      if (status != FLASH_TIMEOUT)
-      {
-        /* Disable the PG Bit */
-        FLASH->CR &= CR_PG_Reset;
-      }
+      /* Disable the PG Bit */
+      FLASH->CR &= CR_PG_Reset;
     }
   }         
 #endif /* STM32F10X_XL */
@@ -920,11 +874,9 @@ FLASH_Status FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data)
       *(__IO uint16_t*)Address = Data;
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastBank1Operation(ProgramTimeout);
-      if(status != FLASH_TIMEOUT)
-      {
-        /* if the program operation is completed, disable the PG Bit */
-        FLASH->CR &= CR_PG_Reset;
-      }
+
+      /* Disable the PG Bit */
+      FLASH->CR &= CR_PG_Reset;
     }
   }
   else
@@ -937,11 +889,9 @@ FLASH_Status FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data)
       *(__IO uint16_t*)Address = Data;
       /* Wait for last operation to be completed */
       status = FLASH_WaitForLastBank2Operation(ProgramTimeout);
-      if(status != FLASH_TIMEOUT)
-      {
-        /* if the program operation is completed, disable the PG Bit */
-        FLASH->CR2 &= CR_PG_Reset;
-      }
+
+      /* Disable the PG Bit */
+      FLASH->CR2 &= CR_PG_Reset;
     }
   }
 #else
@@ -956,11 +906,9 @@ FLASH_Status FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data)
     *(__IO uint16_t*)Address = Data;
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastOperation(ProgramTimeout);
-    if(status != FLASH_TIMEOUT)
-    {
-      /* if the program operation is completed, disable the PG Bit */
-      FLASH->CR &= CR_PG_Reset;
-    }
+    
+    /* Disable the PG Bit */
+    FLASH->CR &= CR_PG_Reset;
   } 
 #endif  /* STM32F10X_XL */
   

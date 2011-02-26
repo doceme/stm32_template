@@ -1,13 +1,15 @@
 ;/******************** (C) COPYRIGHT 2010 STMicroelectronics ********************
-;* File Name          : startup_stm32f10x_md_vl.s
+;* File Name          : startup_stm32f10x_hd_vl.s
 ;* Author             : MCD Application Team
 ;* Version            : V3.4.0
 ;* Date               : 10/15/2010
-;* Description        : STM32F10x Medium Density Value Line Devices vector table 
+;* Description        : STM32F10x High Density Value Line Devices vector table 
 ;*                      for EWARM5.x toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
-;*                      - Configure the clock system
+;*                      - Configure the clock system and the external SRAM 
+;*                        mounted on STM32100E-EVAL board to be used as data 
+;*                        memory (optional, to be enabled by user)
 ;*                      - Set the initial PC == __iar_program_start,
 ;*                      - Set the vector table entries with the exceptions ISR 
 ;*                        address.
@@ -112,19 +114,24 @@ __vector_table
         DCD     EXTI15_10_IRQHandler          ; EXTI Line 15..10
         DCD     RTCAlarm_IRQHandler           ; RTC Alarm through EXTI Line
         DCD     CEC_IRQHandler                ; HDMI-CEC
+        DCD     TIM12_IRQHandler              ; TIM12
+        DCD     TIM13_IRQHandler              ; TIM13
+        DCD     TIM14_IRQHandler              ; TIM14
         DCD     0                             ; Reserved
         DCD     0                             ; Reserved
+        DCD     FSMC_IRQHandler               ; FSMC
         DCD     0                             ; Reserved
-        DCD     0                             ; Reserved
-        DCD     0                             ; Reserved
-        DCD     0                             ; Reserved
-        DCD     0                             ; Reserved
-        DCD     0                             ; Reserved
-        DCD     0                             ; Reserved
-        DCD     0                             ; Reserved
-        DCD     0                             ; Reserved                        
+        DCD     TIM5_IRQHandler               ; TIM5
+        DCD     SPI3_IRQHandler               ; SPI3
+        DCD     UART4_IRQHandler              ; UART4
+        DCD     UART5_IRQHandler              ; UART5                       
         DCD     TIM6_DAC_IRQHandler           ; TIM6 and DAC underrun
-        DCD     TIM7_IRQHandler               ; TIM7                
+        DCD     TIM7_IRQHandler               ; TIM7     
+        DCD     DMA2_Channel1_IRQHandler      ; DMA2 Channel1
+        DCD     DMA2_Channel2_IRQHandler      ; DMA2 Channel2
+        DCD     DMA2_Channel3_IRQHandler      ; DMA2 Channel3
+        DCD     DMA2_Channel4_5_IRQHandler    ; DMA2 Channel4 & Channel5                   
+        DCD     DMA2_Channel5_IRQHandler      ; DMA2 Channel5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -380,6 +387,46 @@ RTCAlarm_IRQHandler
 CEC_IRQHandler
         B CEC_IRQHandler
 
+        PUBWEAK TIM12_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+TIM12_IRQHandler
+        B TIM12_IRQHandler
+
+        PUBWEAK TIM13_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+TIM13_IRQHandler
+        B TIM13_IRQHandler
+
+        PUBWEAK TIM14_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+TIM14_IRQHandler
+        B TIM14_IRQHandler
+
+        PUBWEAK FSMC_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+FSMC_IRQHandler
+        B FSMC_IRQHandler
+
+        PUBWEAK TIM5_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+TIM5_IRQHandler
+        B TIM5_IRQHandler
+
+        PUBWEAK SPI3_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+SPI3_IRQHandler
+        B SPI3_IRQHandler
+
+        PUBWEAK UART4_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+UART4_IRQHandler
+        B UART4_IRQHandler
+
+        PUBWEAK UART5_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+UART5_IRQHandler
+        B UART5_IRQHandler
+        
         PUBWEAK TIM6_DAC_IRQHandler
         SECTION .text:CODE:REORDER(1)
 TIM6_DAC_IRQHandler
@@ -390,5 +437,30 @@ TIM6_DAC_IRQHandler
 TIM7_IRQHandler
         B TIM7_IRQHandler                
 
+        PUBWEAK DMA2_Channel1_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+DMA2_Channel1_IRQHandler
+        B DMA2_Channel1_IRQHandler
+
+        PUBWEAK DMA2_Channel2_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+DMA2_Channel2_IRQHandler
+        B DMA2_Channel2_IRQHandler
+
+        PUBWEAK DMA2_Channel3_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+DMA2_Channel3_IRQHandler
+        B DMA2_Channel3_IRQHandler
+
+        PUBWEAK DMA2_Channel4_5_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+DMA2_Channel4_5_IRQHandler
+        B DMA2_Channel4_5_IRQHandler
+
+        PUBWEAK DMA2_Channel5_IRQHandler
+        SECTION .text:CODE:REORDER(1)
+DMA2_Channel5_IRQHandler
+        B DMA2_Channel5_IRQHandler
+                
         END
 /******************* (C) COPYRIGHT 2010 STMicroelectronics *****END OF FILE****/

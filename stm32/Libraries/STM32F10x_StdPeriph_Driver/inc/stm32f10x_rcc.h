@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f10x_rcc.h
   * @author  MCD Application Team
-  * @version V3.3.0
-  * @date    04/16/2010
+  * @version V3.4.0
+  * @date    10/15/2010
   * @brief   This file contains all the functions prototypes for the RCC firmware 
   *          library.
   ******************************************************************************
@@ -79,7 +79,7 @@ typedef struct
 
 #define RCC_PLLSource_HSI_Div2           ((uint32_t)0x00000000)
 
-#if !defined (STM32F10X_LD_VL) && !defined (STM32F10X_MD_VL) && !defined (STM32F10X_CL)
+#if !defined (STM32F10X_LD_VL) && !defined (STM32F10X_MD_VL) && !defined (STM32F10X_HD_VL) && !defined (STM32F10X_CL)
  #define RCC_PLLSource_HSE_Div1           ((uint32_t)0x00010000)
  #define RCC_PLLSource_HSE_Div2           ((uint32_t)0x00030000)
  #define IS_RCC_PLL_SOURCE(SOURCE) (((SOURCE) == RCC_PLLSource_HSI_Div2) || \
@@ -144,7 +144,7 @@ typedef struct
 /** @defgroup PREDIV1_division_factor
   * @{
   */
-#if defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || defined (STM32F10X_CL)
+#if defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || defined (STM32F10X_HD_VL) || defined (STM32F10X_CL)
  #define  RCC_PREDIV1_Div1               ((uint32_t)0x00000000)
  #define  RCC_PREDIV1_Div2               ((uint32_t)0x00000001)
  #define  RCC_PREDIV1_Div3               ((uint32_t)0x00000002)
@@ -186,7 +186,7 @@ typedef struct
 
  #define IS_RCC_PREDIV1_SOURCE(SOURCE) (((SOURCE) == RCC_PREDIV1_Source_HSE) || \
                                         ((SOURCE) == RCC_PREDIV1_Source_PLL2)) 
-#elif defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL)
+#elif defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || defined (STM32F10X_HD_VL)
 /* PREDIV1 clock source (for STM32 Value line devices) */
  #define  RCC_PREDIV1_Source_HSE         ((uint32_t)0x00000000) 
 
@@ -651,7 +651,7 @@ void RCC_HSICmd(FunctionalState NewState);
 void RCC_PLLConfig(uint32_t RCC_PLLSource, uint32_t RCC_PLLMul);
 void RCC_PLLCmd(FunctionalState NewState);
 
-#if defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || defined (STM32F10X_CL)
+#if defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || defined (STM32F10X_HD_VL) || defined (STM32F10X_CL)
  void RCC_PREDIV1Config(uint32_t RCC_PREDIV1_Source, uint32_t RCC_PREDIV1_Div);
 #endif
 
