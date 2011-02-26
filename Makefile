@@ -210,10 +210,8 @@ ADEFS = -D__ASSEMBLY__
 # gnu99 - c99 plus GCC extensions
 CSTANDARD = -std=gnu99
 
-#-----
-
 # Compiler flags.
-
+#
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -276,31 +274,30 @@ LDFLAGS +=-T$(LINKERSCRIPTPATH)/$(CHIP).ld
 # Options for OpenOCD flash-programming
 # see openocd.pdf/openocd.texi for further information
 #
-OOCD_LOADFILE+=$(OUTDIR)/$(TARGET).elf
+OPENOCD_LOADFILE+=$(OUTDIR)/$(TARGET).elf
 # if OpenOCD is in the $PATH just set OPENOCDEXE=openocd
-OOCD_EXE=/home/doceme/sandbox/openocd/bin/openocd
+OPENOCD=openocd
 # debug level
-OOCD_CL=-d0
+OPENOCD_CMD=-d0
 # interface and board/target settings (using the OOCD target-library here)
-OOCD_CL+=-f openocd/openocd.cfg
+OPENOCD_CMD+=-f debug/openocd.cfg
 # initialize
-OOCD_CL+=-c init
+OPENOCD_CMD+=-c init
 # show the targets
-OOCD_CL+=-c targets
+OPENOCD_CMD+=-c targets
 # commands to prepare flash-write
-OOCD_CL+= -c "reset halt"
+OPENOCD_CMD+= -c "reset halt"
 # flash erase
-OOCD_CL+=-c "stm32x mass_erase 0"
+OPENOCD_CMD+=-c "stm32x mass_erase 0"
 # flash-write
-OOCD_CL+=-c "flash write_image $(OOCD_LOADFILE)"
+OPENOCD_CMD+=-c "flash write_image $(OPENOCD_LOADFILE)"
 # Verify
-OOCD_CL+=-c "verify_image $(OOCD_LOADFILE)"
+OPENOCD_CMD+=-c "verify_image $(OPENOCD_LOADFILE)"
 # reset target
-OOCD_CL+=-c "reset run"
+OPENOCD_CMD+=-c "reset run"
 # terminate OOCD after programming
-OOCD_CL+=-c shutdown
+OPENOCD_CMD+=-c shutdown
 # ---------------------------------------------------------------------------
-
 
 # Define programs and commands.
 CC      = $(TCHAIN_PREFIX)gcc
@@ -310,16 +307,12 @@ OBJCOPY = $(TCHAIN_PREFIX)objcopy
 OBJDUMP = $(TCHAIN_PREFIX)objdump
 SIZE    = $(TCHAIN_PREFIX)size
 NM      = $(TCHAIN_PREFIX)nm
+GDB     = $(TCHAIN_PREFIX)gdb
 REMOVE  = $(REMOVE_CMD) -rf
-###SHELL   = sh
-###COPY    = cp
-
 
 # Define Messages
 # English
 MSG_ERRORS_NONE = Errors: none
-MSG_BEGIN = "-------- begin --------"
-MSG_END = "--------  end  --------"
 MSG_SIZE_BEFORE = Size before build:
 MSG_SIZE_AFTER = Size after build:
 MSG_LOAD_FILE = Creating load file:
@@ -339,6 +332,7 @@ MSG_ASMFROMC_ARM = "Creating asm-File from C-Source (ARM-only):"
 
 # List of all source files.
 ALLSRC     = $(ASRCARM) $(ASRC) $(SRCARM) $(SRC) $(CPPSRCARM) $(CPPSRC)
+
 # List of all source files without directory and file-extension.
 ALLSRCBASE = $(notdir $(basename $(ALLSRC)))
 
@@ -347,6 +341,7 @@ ALLOBJ     = $(addprefix $(OUTDIR)/, $(addsuffix .o, $(ALLSRCBASE)))
 
 # Define all listing files (used for make clean).
 LSTFILES   = $(addprefix $(OUTDIR)/, $(addsuffix .lst, $(ALLSRCBASE)))
+
 # Define all depedency-files (used for make clean).
 #DEPFILES   = $(addprefix $(OUTDIR)/dep/, $(addsuffix .o.d, $(ALLSRCBASE)))
 
@@ -359,7 +354,7 @@ hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
 
 # Default target.
-all: begin gccversion sizebefore build sizeafter end
+all: gccversion build size
 
 ifeq ($(LOADFORMAT),ihex)
 build: elf hex lss sym
@@ -375,33 +370,31 @@ endif
 endif
 endif
 
-
-# Eye candy.
-begin:
-	@echo $(MSG_BEGIN)
-
-end:
-	@echo $(MSG_END)
-
 # Display sizes of sections.
 ELFSIZE = $(SIZE) -B $(OUTDIR)/$(TARGET).elf
-sizebefore:
-	@if [ -f  $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); echo; fi
 
-sizeafter: elf
+size: elf
 	@if [ -f  $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
 
 # Display compiler version information.
-gccversion :
+gccversion:
 	@$(CC) --version
 #	@echo $(ALLOBJ)
+
+# Start gdb
+gdb:
+	$(GDB) -x debug/gdb.cmd
 
 # Program the device.
 ifeq ($(FLASH_TOOL),OPENOCD)
 # Program the device with Dominic Rath's OPENOCD in "batch-mode", needs cfg and "reset-script".
 program: $(OUTDIR)/$(TARGET).elf
 	@echo "Programming with OPENOCD"
-	$(OOCD_EXE) $(OOCD_CL)
+	$(OPENOCD) $(OPENOCD_CMD)
+
+openocd: $(OUTDIR)/$(TARGET).elf
+	@echo "Start OPENOCD"
+	$(OPENOCD) -f debug/openocd.cfg
 endif
 
 # Create final output file (.hex) from ELF output file.
@@ -440,7 +433,6 @@ endif
 	$(CC) $(THUMB) $(CFLAGS) $(ALLOBJ) --output $@ $(LDFLAGS)
 #	$(CPP) $(THUMB) $(CFLAGS) $(ALLOBJ) --output $@ $(LDFLAGS)
 
-
 # Assemble: create object files from assembler source files.
 define ASSEMBLE_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
@@ -458,7 +450,6 @@ $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
 	$(CC) -c $$(ASFLAGS) $$< -o $$@
 endef
 $(foreach src, $(ASRCARM), $(eval $(call ASSEMBLE_ARM_TEMPLATE, $(src))))
-
 
 # Compile: create object files from C source files.
 define COMPILE_C_TEMPLATE
@@ -478,7 +469,6 @@ $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
 endef
 $(foreach src, $(SRCARM), $(eval $(call COMPILE_C_ARM_TEMPLATE, $(src))))
 
-
 # Compile: create object files from C++ source files.
 define COMPILE_CPP_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
@@ -497,7 +487,6 @@ $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
 endef
 $(foreach src, $(CPPSRCARM), $(eval $(call COMPILE_CPP_ARM_TEMPLATE, $(src))))
 
-
 # Compile: create assembler files from C source files. ARM/Thumb
 $(SRC:.c=.s) : %.s : %.c
 	@echo $(MSG_ASMFROMC) $< to $@
@@ -513,31 +502,12 @@ $(SRCARM:.c=.s) : %.s : %.c
 #	doxygen  $(DOXYGENDIR)/doxygen.cfg
 
 # Target: clean project.
-clean: begin clean_list finished end
-
-clean_list :
-##	@echo
+clean:
 	@echo $(MSG_CLEANING)
 	$(REMOVE) $(OUTDIR)
-#	$(REMOVE) $(OUTDIR)/$(TARGET).map
-#	$(REMOVE) $(OUTDIR)/$(TARGET).elf
-#	$(REMOVE) $(OUTDIR)/$(TARGET).hex
-#	$(REMOVE) $(OUTDIR)/$(TARGET).bin
-#	$(REMOVE) $(OUTDIR)/$(TARGET).sym
-#	$(REMOVE) $(OUTDIR)/$(TARGET).lss
-#	$(REMOVE) $(ALLOBJ)
-#	$(REMOVE) $(LSTFILES)
-#	$(REMOVE) $(DEPFILES)
-#	$(REMOVE) $(SRC:.c=.s)
-#	$(REMOVE) $(SRCARM:.c=.s)
-#	$(REMOVE) $(CPPSRC:.cpp=.s)
-#	$(REMOVE) $(CPPSRCARM:.cpp=.s)
-
 
 # Create output files directory
 $(shell mkdir -p $(OUTDIR))
 
 # Listing of phony targets.
-.PHONY : all begin finish end sizebefore sizeafter gccversion \
-build elf hex bin lss sym clean clean_list program
-
+.PHONY: all size gccversion build elf hex bin lss sym clean program openocd gdb
