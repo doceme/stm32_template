@@ -67,7 +67,7 @@ STMSPDSRCDIR = $(STMSPDDIR)/src
 STMSPDINCDIR = $(STMSPDDIR)/inc
 CMSISDIR  = $(STMLIBDIR)/CMSIS/CM3
 RTOSDIR = freertos
-RTOSSRCDIR = $(RTOSDIR)/FreeRTOS/Source
+RTOSSRCDIR = $(RTOSDIR)/Source
 RTOSINCDIR = $(RTOSSRCDIR)/include
 #DOXYGENDIR = doc/doxygen
 
@@ -111,7 +111,7 @@ SRC += $(RTOSSRCDIR)/tasks.c
 
 ## RTOS Portable
 SRC += $(RTOSSRCDIR)/portable/GCC/ARM_CM3/port.c
-SRC += $(RTOSSRCDIR)/portable/MemMang/heap_2.c
+SRC += $(RTOSSRCDIR)/portable/MemMang/heap_1.c
 endif
 
 # List C source files here which must be compiled in ARM-Mode (no -mthumb).
