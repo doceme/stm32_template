@@ -182,8 +182,8 @@ endif
 #  binary to create a load-image in raw-binary format i.e. for SAM-BA,
 #  ihex to create a load-image in Intel hex format
 #LOADFORMAT = ihex
-LOADFORMAT = binary
-#LOADFORMAT = both
+#LOADFORMAT = binary
+LOADFORMAT = both
 
 # Debugging format.
 DEBUGF = gdb
@@ -317,8 +317,8 @@ REMOVE  = $(REMOVE_CMD) -rf
 # Define Messages
 # English
 MSG_ERRORS_NONE = Errors: none
-MSG_BEGIN = "-------- begin (mode: $(RUN_MODE)) --------"
-MSG_END = --------  end  --------
+MSG_BEGIN = "-------- begin --------"
+MSG_END = "--------  end  --------"
 MSG_SIZE_BEFORE = Size before:
 MSG_SIZE_AFTER = Size after build:
 MSG_LOAD_FILE = Creating load file:
@@ -349,6 +349,8 @@ LSTFILES   = $(addprefix $(OUTDIR)/, $(addsuffix .lst, $(ALLSRCBASE)))
 # Define all depedency-files (used for make clean).
 #DEPFILES   = $(addprefix $(OUTDIR)/dep/, $(addsuffix .o.d, $(ALLSRCBASE)))
 
+default: all
+
 elf: $(OUTDIR)/$(TARGET).elf
 lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
@@ -356,8 +358,7 @@ hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
 
 # Default target.
-#all: begin gccversion sizebefore build sizeafter finished end
-all: begin gccversion build sizeafter finished end
+all: begin gccversion sizebefore build sizeafter end
 
 ifeq ($(LOADFORMAT),ihex)
 build: elf hex lss sym
@@ -376,26 +377,19 @@ endif
 
 # Eye candy.
 begin:
-##	@echo
 	@echo $(MSG_BEGIN)
-
-finished:
-##	@echo $(MSG_ERRORS_NONE)
 
 end:
 	@echo $(MSG_END)
-##	@echo
 
 # Display sizes of sections.
 ELFSIZE = $(SIZE) -A  $(OUTDIR)/$(TARGET).elf
 ##ELFSIZE = $(SIZE) --format=Berkeley --common $(OUTDIR)/$(TARGET).elf
 sizebefore:
-#	@if [ -f  $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); echo; fi
+	@if [ -f  $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); echo; fi
 
 sizeafter:
-#	@if [ -f  $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
-	@echo $(MSG_SIZE_AFTER)
-	$(ELFSIZE)
+	@if [ -f  $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
 
 # Display compiler version information.
 gccversion :
