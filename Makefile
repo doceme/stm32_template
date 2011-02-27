@@ -51,6 +51,7 @@ MODEL    = md_vl
 BOARD    = STM32Discovery
 F_XTAL   = 8000000
 SYSCLOCK_CL = SYSCLK_FREQ_24MHz=24000000
+STACK_SIZE ?= 512
 
 # Directory for output files (lst, obj, dep, elf, sym, map, hex, bin etc.)
 OUTDIR = build
@@ -200,7 +201,9 @@ CDEFS += -DUSE_STDPERIPH_DRIVER
 CDEFS += -DUSE_$(BOARD)
 CDEFS += -DHSE_VALUE=$(F_XTAL)UL
 CDEFS += -D$(SYSCLOCK_CL)
-CDEFS += -DSTACK_SIZE=512
+ifneq ($(STACK_SIZE),YES)
+CDEFS += -DSTACK_SIZE=$(STACK_SIZE)
+endif
 
 # Place project-specific -D and/or -U options for
 # Assembler with preprocessor here.
