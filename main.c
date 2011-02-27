@@ -202,7 +202,7 @@ void NVIC_Configuration(void)
   * @param  None
   * @retval None
   */
-void EXTI0_IRQHandler(void)
+void exti0_isr(void)
 {
 	/* Clear the Key Button EXTI line pending bit */
 	EXTI_ClearITPendingBit(EXTI_Line0);
@@ -216,7 +216,7 @@ void EXTI0_IRQHandler(void)
   * @param  None
   * @retval None
   */
-void RTC_IRQHandler(void)
+void rtc_isr(void)
 {
 	if(RTC_GetITStatus(RTC_IT_SEC) != RESET)
 	{

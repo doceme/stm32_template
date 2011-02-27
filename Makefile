@@ -85,6 +85,7 @@ SRC += $(COMMONDIR)/fault.c
 SRC += $(CMSISDIR)/CoreSupport/core_cm3.c
 
 ## STM32:
+SRC += $(STM32DIR)/vector.c
 SRC += $(STM32DIR)/system_stm32f10x.c
 
 ## Used parts of the STM-Library
@@ -137,7 +138,8 @@ CPPSRCARM =
 # Even though the DOS/Win* filesystem matches both .s and .S the same,
 # it will preserve the spelling of the filenames, and gcc itself does
 # care about how the name is spelled on its command-line.
-ASRC = $(CMSISDIR)/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_$(MODEL).s
+#ASRC = $(CMSISDIR)/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_$(MODEL).s
+ASRC =
 
 # List Assembler source files here which must be assembled in ARM-Mode..
 ASRCARM =
@@ -198,7 +200,7 @@ CDEFS += -DUSE_STDPERIPH_DRIVER
 CDEFS += -DUSE_$(BOARD)
 CDEFS += -DHSE_VALUE=$(F_XTAL)UL
 CDEFS += -D$(SYSCLOCK_CL)
-
+CDEFS += -DSTACK_SIZE=512
 
 # Place project-specific -D and/or -U options for
 # Assembler with preprocessor here.
@@ -271,6 +273,7 @@ LDFLAGS += -lc -lgcc
 
 # Set linker-script name depending on selected submodel name
 LDFLAGS +=-T$(LINKERSCRIPTPATH)/$(CHIP).ld
+LDFLAGS +=-T$(LINKERSCRIPTPATH)/stm32f1xx.ld
 
 # ---------------------------------------------------------------------------
 # Options for OpenOCD flash-programming

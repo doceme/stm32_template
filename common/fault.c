@@ -6,9 +6,9 @@
  */
 #include "stm32f10x.h"
 
-void MemManage_Handler(void) __attribute__((naked));
-void BusFault_Handler(void) __attribute__ ((naked));
-void UsageFault_Handler(void) __attribute__ ((naked));
+void mem_manage_handler(void) __attribute__((naked));
+void bus_fault_handler(void) __attribute__ ((naked));
+void usage_fault_handler(void) __attribute__ ((naked));
 
 struct stack_t {
 	uint32_t r0;
@@ -44,7 +44,7 @@ void fault_halt(struct stack_t *stack)
 	assert_break();
 }
 
-void MemManage_Handler(void)
+void mem_manage_handler(void)
 {
 	__asm volatile
 	(
@@ -59,7 +59,7 @@ void MemManage_Handler(void)
 	);
 }
 
-void BusFault_Handler(void)
+void bus_fault_handler(void)
 {
 	__asm volatile
 	(
@@ -74,7 +74,7 @@ void BusFault_Handler(void)
 	);
 }
 
-void UsageFault_Handler(void)
+void usage_fault_handler(void)
 {
 	__asm volatile
 	(
