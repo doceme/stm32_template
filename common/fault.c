@@ -24,9 +24,8 @@ struct stack_t {
 static inline void assert_break(void)
 {
 	/* Stop debugger if attached */
-	if (CoreDebug->DHCSR & 1) {
+	if (CoreDebug->DHCSR & 1)
 		__asm volatile("bkpt 0");
-	}
 
 	while(1);
 }
@@ -41,6 +40,11 @@ void fault_halt(struct stack_t *stack)
 	(void)stack;
 
 	/* Inspect stack->pc to locate the offending instruction. */
+	assert_break();
+}
+
+void hard_fault_handler(void)
+{
 	assert_break();
 }
 

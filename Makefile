@@ -25,7 +25,7 @@
 
 # Set developer code and compile options
 # Set to YES for debugging
-DEBUG = YES
+DEBUG ?= YES
 # Set to YES when using Code Sourcery toolchain
 CODE_SOURCERY=YES
 
@@ -35,7 +35,7 @@ TCHAIN_PREFIX = arm-none-eabi-
 REMOVE_CMD = rm
 
 FLASH_TOOL = OPENOCD
-#RTOS = FREERTOS
+RTOS ?= FREERTOS
 
 # YES enables -mthumb option to flags for source-files listed
 # in SRC and CPPSRC
@@ -51,7 +51,7 @@ MODEL    = md_vl
 BOARD    = STM32Discovery
 F_XTAL   = 8000000
 SYSCLOCK_CL = SYSCLK_FREQ_24MHz=24000000
-STACK_SIZE ?= 512
+STACK_SIZE ?= 1024
 
 # Directory for output files (lst, obj, dep, elf, sym, map, hex, bin etc.)
 OUTDIR = build
@@ -79,8 +79,10 @@ RTOSINCDIR = $(RTOSSRCDIR)/include
 SRC = main.c
 
 ## COMMON:
+ifeq ($(DEBUG),YES)
 SRC += $(COMMONDIR)/fault.c
-#SRC += $(COMMONDIR)/tprintf.c
+SRC += $(COMMONDIR)/tprintf.c
+endif
 
 ## CMSIS for STM32
 SRC += $(CMSISDIR)/CoreSupport/core_cm3.c
@@ -96,7 +98,7 @@ SRC += $(STMSPDSRCDIR)/stm32f10x_bkp.c
 #SRC += $(STMSPDSRCDIR)/stm32f10x_dac.c
 #SRC += $(STMSPDSRCDIR)/stm32f10x_dma.c
 SRC += $(STMSPDSRCDIR)/stm32f10x_exti.c
-SRC += $(STMSPDSRCDIR)/stm32f10x_flash.c
+#SRC += $(STMSPDSRCDIR)/stm32f10x_flash.c
 SRC += $(STMSPDSRCDIR)/stm32f10x_gpio.c
 #SRC += $(STMSPDSRCDIR)/stm32f10x_i2c.c
 SRC += $(STMSPDSRCDIR)/stm32f10x_pwr.c
@@ -104,7 +106,7 @@ SRC += $(STMSPDSRCDIR)/stm32f10x_rcc.c
 SRC += $(STMSPDSRCDIR)/stm32f10x_rtc.c
 #SRC += $(STMSPDSRCDIR)/stm32f10x_spi.c
 #SRC += $(STMSPDSRCDIR)/stm32f10x_tim.c
-#SRC += $(STMSPDSRCDIR)/stm32f10x_usart.c
+SRC += $(STMSPDSRCDIR)/stm32f10x_usart.c
 SRC += $(STMSPDSRCDIR)/misc.c
 
 ## RTOS
@@ -174,16 +176,6 @@ EXTRA_LIBS =
 # Path to Linker-Scripts
 LINKERSCRIPTPATH = $(STM32DIR)
 
-# Optimization level, can be [0, 1, 2, 3, s].
-# 0 = turn off optimization. s = optimize for size.
-# (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
-
-ifeq ($(DEBUG),YES)
-OPT = 0
-else
-OPT = s
-endif
-
 # Output format. (can be ihex or binary or both)
 #  binary to create a load-image in raw-binary format i.e. for SAM-BA,
 #  ihex to create a load-image in Intel hex format
@@ -201,8 +193,22 @@ CDEFS += -DUSE_STDPERIPH_DRIVER
 CDEFS += -DUSE_$(BOARD)
 CDEFS += -DHSE_VALUE=$(F_XTAL)UL
 CDEFS += -D$(SYSCLOCK_CL)
-ifneq ($(STACK_SIZE),YES)
+ifneq ($(STACK_SIZE),)
 CDEFS += -DSTACK_SIZE=$(STACK_SIZE)
+endif
+ifneq ($(RTOS),)
+CDEFS += -D$(RTOS)
+endif
+
+# Optimization level, can be [0, 1, 2, 3, s].
+# 0 = turn off optimization. s = optimize for size.
+# (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
+
+ifeq ($(DEBUG),YES)
+CDEFS += -DDEBUG
+OPT = 0
+else
+OPT = s
 endif
 
 # Place project-specific -D and/or -U options for

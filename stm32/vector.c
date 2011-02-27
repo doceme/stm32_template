@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <stm32f10x.h>
 
 #define WEAK __attribute__ ((weak))
 
@@ -26,7 +27,8 @@ extern unsigned _etext, _data, _edata, _ebss;
 #define STACK_SIZE 1024
 #endif
 
-static unsigned long stack[STACK_SIZE];
+__attribute__ ((section(".stack")))
+unsigned long stack[STACK_SIZE / sizeof(unsigned long)];
 
 void main(void);
 void reset_handler(void);
@@ -38,10 +40,22 @@ void WEAK hard_fault_handler(void);
 void WEAK mem_manage_handler(void);
 void WEAK bus_fault_handler(void);
 void WEAK usage_fault_handler(void);
+#ifdef FREERTOS
+extern void vPortSVCHandler(void);
+#define sv_call_handler vPortSVCHandler
+#else
 void WEAK sv_call_handler(void);
+#endif
 void WEAK debug_monitor_handler(void);
+#ifdef FREERTOS
+extern void xPortPendSVHandler(void);
+extern void xPortSysTickHandler(void);
+#define pend_sv_handler xPortPendSVHandler
+#define sys_tick_handler xPortSysTickHandler
+#else
 void WEAK pend_sv_handler(void);
 void WEAK sys_tick_handler(void);
+#endif
 void WEAK wwdg_isr(void);
 void WEAK pvd_isr(void);
 void WEAK tamper_isr(void);
@@ -185,6 +199,11 @@ void reset_handler(void)
 	volatile unsigned *src, *dest;
 	asm("MSR msp, %0" : : "r"(vector_table[0]));
 
+#ifdef DEBUG
+	SCB->SHCSR |= 0x00070000;
+	/* Enable usage, bus and memory faults */
+#endif
+
 	for (src = &_etext, dest = &_data; dest < &_edata; src++, dest++)
 		*dest = *src;
 
@@ -197,7 +216,7 @@ void reset_handler(void)
 
 void blocking_handler(void)
 {
-	while (1) ;
+	while (1);
 }
 
 void null_handler(void)
@@ -210,10 +229,14 @@ void null_handler(void)
 #pragma weak mem_manage_handler = blocking_handler
 #pragma weak bus_fault_handler = blocking_handler
 #pragma weak usage_fault_handler = blocking_handler
+#ifdef FREERTOS
 #pragma weak sv_call_handler = null_handler
+#endif
 #pragma weak debug_monitor_handler = null_handler
+#ifdef FREERTOS
 #pragma weak pend_sv_handler = null_handler
 #pragma weak sys_tick_handler = null_handler
+#endif
 #pragma weak wwdg_isr = null_handler
 #pragma weak pvd_isr = null_handler
 #pragma weak tamper_isr = null_handler
