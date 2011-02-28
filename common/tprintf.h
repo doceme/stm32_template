@@ -33,7 +33,11 @@
  * @retval On success, the total number of characters written is returned.
  *         On failure, a negative number is returned.
  */
+#ifdef DEBUG
 int tprintf(const char *format, ...);
+#else
+inline int tprintf(const char *format, ...) { return 0; }
+#endif
 
 /**
  * @brief  Tiny embedded version of sprintf
@@ -42,7 +46,11 @@ int tprintf(const char *format, ...);
  * @retval On success, the total number of characters written is returned.
  *         On failure, a negative number is returned.
  */
+#ifdef DEBUG
 int tsprintf(char *out, const char *format, ...);
+#else
+inline int tsprintf(char *out, const char *format, ...) { return 0; }
+#endif
 
 /**
  * @brief  Tiny embedded version of snprintf
@@ -52,7 +60,11 @@ int tsprintf(char *out, const char *format, ...);
  * @retval On success, the total number of characters written is returned.
  *         On failure, a negative number is returned.
  */
+#ifdef DEBUG
 int tsnprintf(char *out, unsigned int count, const char *format, ... );
+#else
+inline int tsnprintf(char *out, unsigned int count, const char *format, ... ) { return 0; }
+#endif
 
 #endif /* TPRINTF_H */
 
