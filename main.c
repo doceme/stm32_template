@@ -49,7 +49,9 @@
 static void RCC_Configuration(void);
 static void GPIO_Configuration(void);
 static void EXTI_Configuration(void);
+#ifndef FREERTOS
 static void RTC_Configuration(void);
+#endif
 static void USART_Configuration(void);
 static void NVIC_Configuration(void);
 static void main_noreturn(void) NORETURN;
@@ -61,6 +63,9 @@ static xQueueHandle tprintf_queue;
 
 static BitAction led_user = Bit_SET;
 static BitAction led_rtc = Bit_SET;
+#ifndef FREERTOS
+static uint32_t tick;
+#endif
 
 /**
  * @brief  Retargets the C library printf function to the USART.
@@ -99,7 +104,9 @@ inline void main_noreturn(void)
 	RCC_Configuration();
 	GPIO_Configuration();
 	EXTI_Configuration();
+#ifndef FREERTOS
 	RTC_Configuration();
+#endif
 	NVIC_Configuration();
 	USART_Configuration();
 
@@ -185,6 +192,7 @@ void EXTI_Configuration(void)
 	EXTI_Init(&EXTI_InitStructure);
 }
 
+#ifndef FREERTOS
 /**
   * @brief  Configures RTC clock source and prescaler
   * @param  None
@@ -232,6 +240,7 @@ void RTC_Configuration(void)
 	/* Wait until last write operation on RTC registers has finished */
 	RTC_WaitForLastTask();
 }
+#endif
 
 /**
   * @brief  Configure the nested vectored interrupt controller.
@@ -251,12 +260,9 @@ void NVIC_Configuration(void)
 	/* Configure HCLK clock as SysTick clock source. */
 	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
 
-	/* Configure RTC interrupt */
-	nvic_init.NVIC_IRQChannel = RTC_IRQn;
-	nvic_init.NVIC_IRQChannelPreemptionPriority = 0;
-	nvic_init.NVIC_IRQChannelSubPriority = 0;
-	nvic_init.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&nvic_init);
+#ifndef FREERTOS
+	SysTick_Config(SystemCoreClock / 1000);
+#endif
 
 	/* Configure EXTI interrupt */
 	nvic_init.NVIC_IRQChannel = EXTI0_IRQn;
@@ -268,6 +274,12 @@ void NVIC_Configuration(void)
 	/* Configure USART interrupt */
 	nvic_init.NVIC_IRQChannel = USART1_IRQn;
 	nvic_init.NVIC_IRQChannelPreemptionPriority = 0xf;
+	nvic_init.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&nvic_init);
+#else
+	/* Configure RTC interrupt */
+	nvic_init.NVIC_IRQChannel = RTC_IRQn;
+	nvic_init.NVIC_IRQChannelPreemptionPriority = 0;
 	nvic_init.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic_init);
 #endif
@@ -345,6 +357,23 @@ void exti0_isr(void)
 	led_user ^= 1;
 }
 
+static inline void update_led()
+{
+	GPIO_WriteBit(GPIOC, GPIO_Pin_9, led_rtc);
+	led_rtc ^= 1;
+}
+
+#ifndef FREERTOS
+/**
+  * @brief  This function handles SysTick interrupt request
+  * @param  None
+  * @retval None
+  */
+void sys_tick_handler(void)
+{
+	tick++;
+}
+
 /**
   * @brief  This function handles RTC interrupt request
   * @param  None
@@ -362,8 +391,8 @@ void rtc_isr(void)
 		/* Clear RTC Alarm interrupt pending bit */
 		RTC_ClearITPendingBit(RTC_IT_SEC);
 
-		GPIO_WriteBit(GPIOC, GPIO_Pin_9, led_rtc);
-		led_rtc ^= 1;
+		update_led();
+		tprintf("tick=%d\r\n", tick);
 
 		/* Reset RTC Counter when Time is 23:59:59 */
 		if (counter == 0x00015180)
@@ -374,6 +403,7 @@ void rtc_isr(void)
 		}
 	}
 }
+#endif
 
 #ifdef FREERTOS
 void main_task(void *pvParameters)
@@ -391,8 +421,9 @@ void main_task(void *pvParameters)
 
 	for (;;)
 	{
-		tprintf("last_wake=%d\r\n", last_wake);
 		vTaskDelayUntil(&last_wake, (1 * MS_PER_SEC) / portTICK_RATE_MS);
+		update_led();
+		tprintf("tick=%d\r\n", last_wake);
 	}
 }
 #endif
