@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       common.h
+ * @file       blink.h
  * @author     Stephen Caudle Copyright (C) 2010.
- * @brief      Common header
+ * @brief      Blink header
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -24,27 +24,11 @@
  */
 
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef BLINK_H
+#define BLINK_H
 
-#define SUCCESS(e) (e >= 0)
-#define FAILURE(e) (e < 0)
+void blink_start(void) NORETURN;
+void blink_toggle(void);
 
-#define ERR_GENERIC	1 /* Generic error */
-#define ERR_EXIST	2 /* Already exists */
-#define ERR_NOINIT	3 /* Not initialized */
-#define ERR_NOIMP	4 /* Not implemented */
-#define ERR_PARAM	5 /* Invalid parameter */
-#define ERR_TIMEOUT	6 /* Timeout */
-#define ERR_OVERFLOW	7 /* Overflow */
-#define ERR_NOCONNECT	8 /* Not connected */
-
-#define IRQ_PRIO_LOW				12		// lower than RTOS
-#define IRQ_PRIO_MID				8		// higher than RTOS
-#define IRQ_PRIO_HIGH				5		// for SPI, ADC, I2C etc...
-#define IRQ_PRIO_HIGHEST			4 		// for USART etc...
-
-#define NORETURN __attribute__((noreturn))
-
-#endif /* COMMON_H */
+#endif /* BLINK_H */
 

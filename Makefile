@@ -67,9 +67,11 @@ STMSPDDIR = $(STMLIBDIR)/STM32F10x_StdPeriph_Driver
 STMSPDSRCDIR = $(STMSPDDIR)/src
 STMSPDINCDIR = $(STMSPDDIR)/inc
 CMSISDIR  = $(STMLIBDIR)/CMSIS/CM3
+ifeq ($(RTOS),FREERTOS)
 RTOSDIR = freertos
 RTOSSRCDIR = $(RTOSDIR)/Source
 RTOSINCDIR = $(RTOSSRCDIR)/include
+endif
 #DOXYGENDIR = doc/doxygen
 
 # List C source files here. (C dependencies are automatically generated.)
@@ -77,6 +79,12 @@ RTOSINCDIR = $(RTOSSRCDIR)/include
 
 ## MAIN:
 SRC = main.c
+
+ifeq ($(RTOS),FREERTOS)
+SRC += blink-freertos.c
+else
+SRC += blink.c
+endif
 
 ## COMMON:
 ifeq ($(DEBUG),YES)
@@ -155,9 +163,11 @@ EXTRAINCDIRS  += $(CMSISDIR)/CoreSupport
 EXTRAINCDIRS  += $(CMSISDIR)/DeviceSupport/ST/STM32F10x
 EXTRAINCDIRS  += $(STM32DIR)
 EXTRAINCDIRS  += $(STMSPDINCDIR)
+ifeq ($(RTOS),FREERTOS)
 EXTRAINCDIRS  += $(RTOSDIR)
 EXTRAINCDIRS  += $(RTOSINCDIR)
 EXTRAINCDIRS  += $(RTOSSRCDIR)/portable/GCC/ARM_CM3
+endif
 
 # List any extra directories to look for library files here.
 # Also add directories where the linker should search for

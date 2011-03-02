@@ -211,6 +211,7 @@ void reset_handler(void)
 		*dest++ = 0;
 
 	/* Call the application's entry point. */
+	SystemInit();
 	main();
 }
 
