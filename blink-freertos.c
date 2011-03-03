@@ -129,6 +129,8 @@ void main_task(void *pvParameters)
 {
 	portTickType last_wake = xTaskGetTickCount();;
 
+	NVIC_Configuration();
+
 	/*
 	 * If using FreeRTOS, tprintf must not be called until after this queue
 	 * has been created
