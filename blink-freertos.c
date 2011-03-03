@@ -54,8 +54,8 @@ static xQueueHandle tprintf_queue;
 int outbyte(int ch)
 {
 	/* Enable USART TXE interrupt */
-	USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
 	xQueueSendToBack(tprintf_queue, &ch, 0);
+	USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
 	return ch;
 }
 
@@ -104,22 +104,10 @@ void usart1_isr(void)
 	{
 		unsigned char ch;
 
-		/* Clear pending bit */
-		USART_ClearITPendingBit(USART1, USART_IT_TXE);
-
 		if (xQueueReceiveFromISR(tprintf_queue, &ch, &task_woken))
-		{
 			USART_SendData(USART1, ch);
-
-			while (xQueueReceiveFromISR(tprintf_queue, &ch, &task_woken))
-			{
-				while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
-				USART_SendData(USART1, ch);
-			}
-		}
-
-		/* Disable USART TXE interrupt */
-		USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
+		else
+			USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
 	}
 
 	portEND_SWITCHING_ISR(task_woken);
@@ -127,7 +115,7 @@ void usart1_isr(void)
 
 void main_task(void *pvParameters)
 {
-	portTickType last_wake = xTaskGetTickCount();;
+	portTickType last_wake = xTaskGetTickCount();
 
 	NVIC_Configuration();
 
