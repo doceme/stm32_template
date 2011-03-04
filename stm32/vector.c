@@ -30,7 +30,7 @@ extern unsigned _etext, _data, _edata, _ebss;
 __attribute__ ((section(".stack")))
 unsigned long stack[STACK_SIZE / sizeof(unsigned long)];
 
-void main(void);
+int main(void);
 void reset_handler(void);
 void blocking_handler(void);
 void null_handler(void);
@@ -119,7 +119,7 @@ void WEAK dma2_channel4_5_isr(void);
 
 __attribute__ ((section(".vectors")))
 void (*const vector_table[]) (void) = {
-	(void *)((unsigned long)stack + sizeof(stack)),
+	(void (*)(void))((unsigned long)stack + sizeof(stack)),
 	reset_handler,
 	nmi_handler,
 	hard_fault_handler,

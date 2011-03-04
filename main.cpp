@@ -39,6 +39,7 @@
 #include "common.h"
 #include "blink.h"
 #include "tprintf.h"
+#include "gpio.h"
 
 /* Function Prototypes */
 static void RCC_Configuration(void);
@@ -48,8 +49,13 @@ static void USART_Configuration(void);
 static void NVIC_Configuration(void);
 static void main_noreturn(void) NORETURN;
 
-static BitAction led_user = Bit_SET;
-static BitAction led_rtc = Bit_SET;
+static uint8_t led_blue_status = 1;
+static uint8_t led_green_status = 1;
+
+typedef Gpio<GPIOA_BASE,0> button;
+typedef Gpio<GPIOA_BASE,9> usart_tx;
+typedef Gpio<GPIOC_BASE,8> led_blue;
+typedef Gpio<GPIOC_BASE,9> led_green;
 
 /**
  * Main function
@@ -57,6 +63,7 @@ static BitAction led_rtc = Bit_SET;
 int main(void)
 {
 	main_noreturn();
+	return 0;
 }
 
 inline void main_noreturn(void)
@@ -95,6 +102,7 @@ void RCC_Configuration(void)
  */
 void GPIO_Configuration(void)
 {
+#if 0
 	GPIO_InitTypeDef gpio_init;
 
 	/* Configure button input floating */
@@ -114,6 +122,11 @@ void GPIO_Configuration(void)
 	gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
 	gpio_init.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_Init(GPIOC, &gpio_init);
+#endif
+	button::mode(Mode::INPUT);
+	usart_tx::mode(Mode::ALTERNATE);
+	led_blue::mode(Mode::OUTPUT);
+	led_green::mode(Mode::OUTPUT);
 
 	/* Connect Button EXTI Line to Button GPIO Pin */
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource0);
@@ -193,12 +206,20 @@ void exti0_isr(void)
 	EXTI_ClearITPendingBit(EXTI_Line0);
 
 	/* TODO: Add debounce logic */
-	GPIO_WriteBit(GPIOC, GPIO_Pin_8, led_user);
-	led_user ^= 1;
+	if (led_blue_status)
+		led_blue::low();
+	else
+		led_blue::high();
+
+	led_blue_status ^= 1;
 }
 
 void blink_toggle()
 {
-	GPIO_WriteBit(GPIOC, GPIO_Pin_9, led_rtc);
-	led_rtc ^= 1;
+	if (led_green_status)
+		led_green::low();
+	else
+		led_green::high();
+
+	led_green_status ^= 1;
 }

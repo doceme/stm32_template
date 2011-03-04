@@ -78,7 +78,8 @@ endif
 # use file-extension c for "c-only"-files
 
 ## MAIN:
-SRC = main.c
+#SRC = main.c
+SRC = syscalls.c
 
 ifeq ($(RTOS),FREERTOS)
 SRC += blink-freertos.c
@@ -135,7 +136,7 @@ SRCARM =
 
 # List C++ source files here.
 # use file-extension .cpp for C++-files (not .C)
-CPPSRC =
+CPPSRC = main.cpp
 
 # List C++ source files here which must be compiled in ARM-Mode.
 # use file-extension .cpp for C++-files (not .C)
@@ -269,6 +270,9 @@ CFLAGS += -Wa,-adhlns=$(addprefix $(OUTDIR)/, $(notdir $(addsuffix .lst, $(basen
 #CONLYFLAGS += -Wnested-externs
 CONLYFLAGS += $(CSTANDARD)
 
+# flags only for C++ (arm-*-g++)
+CPPFLAGS = -fno-rtti -fno-exceptions
+
 # Assembler flags.
 #  -Wa,...:    tell GCC to pass this to the assembler.
 #  -ahlns:     create listing
@@ -279,16 +283,20 @@ ASFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
 MATH_LIB = -lm
 
+# Link with the GNU C++ stdlib.
+CPLUSPLUS_LIB = -lstdc++
+
 # Linker flags.
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -nostartfiles -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref,--gc-sections
-LDFLAGS += $(patsubst %,-L%,$(EXTRA_LIBDIRS))
 LDFLAGS += -lc
-LDFLAGS += $(patsubst %,-l%,$(EXTRA_LIBS))
 LDFLAGS += $(MATH_LIB)
 LDFLAGS += -lc -lgcc
+LDFLAGS += $(CPLUSPLUS_LIB)
+LDFLAGS += $(patsubst %,-L%,$(EXTRA_LIBDIRS))
+LDFLAGS += $(patsubst %,-l%,$(EXTRA_LIBS))
 
 # Set linker-script name depending on selected submodel name
 LDFLAGS +=-T$(LINKERSCRIPTPATH)/$(CHIP).ld
@@ -454,8 +462,8 @@ endif
 	@echo
 	@echo $(MSG_LINKING) $@
 # use $(CC) for C-only projects or $(CPP) for C++-projects:
-	$(CC) $(THUMB) $(CFLAGS) $(ALLOBJ) --output $@ $(LDFLAGS)
-#	$(CPP) $(THUMB) $(CFLAGS) $(ALLOBJ) --output $@ $(LDFLAGS)
+#	$(CC) $(THUMB) $(CFLAGS) $(ALLOBJ) --output $@ $(LDFLAGS)
+	$(CPP) $(THUMB) $(CFLAGS) $(ALLOBJ) --output $@ $(LDFLAGS)
 
 # Assemble: create object files from assembler source files.
 define ASSEMBLE_TEMPLATE
@@ -498,7 +506,7 @@ define COMPILE_CPP_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
 ##	@echo
 	@echo $(MSG_COMPILINGCPP) $$< "->" $$@
-	$(CC) -c $(THUMB) $$(CFLAGS) $$(CPPFLAGS) $$< -o $$@
+	$(CPP) -c $(THUMB) $$(CFLAGS) $$(CPPFLAGS) $$< -o $$@
 endef
 $(foreach src, $(CPPSRC), $(eval $(call COMPILE_CPP_TEMPLATE, $(src))))
 
@@ -507,7 +515,7 @@ define COMPILE_CPP_ARM_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
 ##	@echo
 	@echo $(MSG_COMPILINGCPP_ARM) $$< "->" $$@
-	$(CC) -c $$(CFLAGS) $$(CPPFLAGS) $$< -o $$@
+	$(CPP) -c $$(CFLAGS) $$(CPPFLAGS) $$< -o $$@
 endef
 $(foreach src, $(CPPSRCARM), $(eval $(call COMPILE_CPP_ARM_TEMPLATE, $(src))))
 

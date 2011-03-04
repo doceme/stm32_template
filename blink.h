@@ -27,8 +27,16 @@
 #ifndef BLINK_H
 #define BLINK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void blink_start(void) NORETURN;
 void blink_toggle(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* BLINK_H */
 

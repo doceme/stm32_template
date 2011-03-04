@@ -36,6 +36,13 @@ SECTIONS
 		_etext = .;
 	} >rom
 
+	/* .ARM.exidx is sorted, so has to go in its own output section. */
+	__exidx_start = .;
+	.ARM.exidx : {
+		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+	} >rom
+	__exidx_end = .;
+
 	. = ORIGIN(ram);
 
 	.data : {
@@ -51,8 +58,10 @@ SECTIONS
 	} >ram AT >rom
 
 	.stack : {
+		. = ALIGN(4);
 		_stack = .;
 		*(.stack*)	/* Read-write initialized data */
+		. = ALIGN(4);
 		_estack = .;
 	} >ram
 
