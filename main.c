@@ -139,6 +139,8 @@ static inline void setup()
 #endif
 	setup_usart();
 	setup_nvic();
+
+	tprintf("stm32_template\r\n");
 }
 
 /**
@@ -322,16 +324,17 @@ void setup_nvic(void)
 	NVIC_Init(&nvic_init);
 #else
 	SysTick_Config(SystemCoreClock / 1000);
+	NVIC_SetPriority (SysTick_IRQn, 1);
 
 	/* Configure RTC interrupt */
 	nvic_init.NVIC_IRQChannel = RTC_IRQn;
-	nvic_init.NVIC_IRQChannelPreemptionPriority = 0;
+	nvic_init.NVIC_IRQChannelPreemptionPriority = 2;
 	nvic_init.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic_init);
 
 	/* Configure timer interrupt */
 	nvic_init.NVIC_IRQChannel = TIM4_IRQn;
-	nvic_init.NVIC_IRQChannelPreemptionPriority = 1;
+	nvic_init.NVIC_IRQChannelPreemptionPriority = 3;
 	nvic_init.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic_init);
 #endif
@@ -506,8 +509,6 @@ void blink_task(void *pvParameters)
 	assert_param(debounce_sem);
 
 	setup();
-
-	tprintf("stm32_template\r\n");
 
 	/* Create the button task */
 	xTaskCreate(debounce_task, (signed portCHAR *)"debounce", configMINIMAL_STACK_SIZE , NULL, tskIDLE_PRIORITY + 2, &task);
