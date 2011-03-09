@@ -79,13 +79,6 @@ endif
 
 ## MAIN:
 SRC = main.c
-SRC += button.c
-
-ifeq ($(RTOS),FREERTOS)
-SRC += blink-freertos.c
-else
-SRC += blink.c
-endif
 
 ## COMMON:
 ifeq ($(DEBUG),YES)
