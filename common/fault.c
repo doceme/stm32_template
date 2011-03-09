@@ -21,14 +21,7 @@ struct stack_t {
 	uint32_t psr;
 };
 
-static inline void assert_break(void)
-{
-	/* Stop debugger if attached */
-	if (CoreDebug->DHCSR & 1)
-		__asm volatile("bkpt 0");
-
-	while(1);
-}
+#define assert_break() do { if (CoreDebug->DHCSR & 1) { __asm volatile("bkpt 0"); } while(1); } while (0)
 
 void assert_failed(uint8_t *function, uint32_t line)
 {
