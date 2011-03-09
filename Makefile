@@ -79,6 +79,7 @@ endif
 
 ## MAIN:
 SRC = main.c
+SRC += button.c
 
 ifeq ($(RTOS),FREERTOS)
 SRC += blink-freertos.c
@@ -113,7 +114,7 @@ SRC += $(STMSPDSRCDIR)/stm32f10x_pwr.c
 SRC += $(STMSPDSRCDIR)/stm32f10x_rcc.c
 SRC += $(STMSPDSRCDIR)/stm32f10x_rtc.c
 #SRC += $(STMSPDSRCDIR)/stm32f10x_spi.c
-#SRC += $(STMSPDSRCDIR)/stm32f10x_tim.c
+SRC += $(STMSPDSRCDIR)/stm32f10x_tim.c
 SRC += $(STMSPDSRCDIR)/stm32f10x_usart.c
 SRC += $(STMSPDSRCDIR)/misc.c
 
