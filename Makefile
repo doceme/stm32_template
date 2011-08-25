@@ -35,7 +35,7 @@ TCHAIN_PREFIX = arm-none-eabi-
 REMOVE_CMD = rm
 
 FLASH_TOOL = OPENOCD
-RTOS ?= FREERTOS
+RTOS ?= NONE
 
 # YES enables -mthumb option to flags for source-files listed
 # in SRC and CPPSRC
@@ -278,6 +278,7 @@ MATH_LIB = -lm
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -nostartfiles -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref,--gc-sections
+#LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref,--gc-sections
 LDFLAGS += $(patsubst %,-L%,$(EXTRA_LIBDIRS))
 LDFLAGS += -lc
 LDFLAGS += $(patsubst %,-l%,$(EXTRA_LIBS))
