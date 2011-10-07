@@ -39,8 +39,6 @@
 #include "common.h"
 #include "tprintf.h"
 
-#define QEMU_STUB
-
 #define MS_PER_SEC		1000
 #define DEBOUNCE_DELAY		40
 #ifdef FREERTOS
@@ -220,7 +218,6 @@ void setup_exti(void)
   */
 void setup_rtc(void)
 {
-#ifndef QEMU_STUB
 	/* RTC clock source configuration ------------------------------------------*/
 	/* Allow access to BKP Domain */
 	PWR_BackupAccessCmd(ENABLE);
@@ -260,7 +257,6 @@ void setup_rtc(void)
 
 	/* Wait until last write operation on RTC registers has finished */
 	RTC_WaitForLastTask();
-#endif
 }
 
 /**
@@ -295,11 +291,8 @@ void setup_usart(void)
 	usart_init.USART_StopBits = 1;
 	usart_init.USART_Parity = USART_Parity_No;
 	usart_init.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	usart_init.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	usart_init.USART_Mode = USART_Mode_Tx;
 	USART_Init(USART1, &usart_init);
-
-	/* Enable the receive interrupt */
-	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 
 	/* Enable the USART */
 	USART_Cmd(USART1, ENABLE);
@@ -323,16 +316,16 @@ void setup_nvic(void)
 	/* Configure HCLK clock as SysTick clock source. */
 	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
 
+#ifdef FREERTOS
 	/* Configure USART interrupt */
 	nvic_init.NVIC_IRQChannel = USART1_IRQn;
 	nvic_init.NVIC_IRQChannelPreemptionPriority = 0xf;
 	nvic_init.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic_init);
-
-#ifndef FREERTOS
+#else
 	SysTick_Config(SystemCoreClock / 1000);
+	NVIC_SetPriority (SysTick_IRQn, 1);
 
-#ifndef QEMU_STUB
 	/* Configure RTC interrupt */
 	nvic_init.NVIC_IRQChannel = RTC_IRQn;
 	nvic_init.NVIC_IRQChannelPreemptionPriority = 2;
@@ -345,17 +338,15 @@ void setup_nvic(void)
 	nvic_init.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic_init);
 #endif
-#endif
 
-#ifndef QEMU_STUB
 	/* Configure EXTI interrupt */
 	nvic_init.NVIC_IRQChannel = EXTI0_IRQn;
 	nvic_init.NVIC_IRQChannelPreemptionPriority = 0xc;
 	nvic_init.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic_init);
-#endif
 }
 
+#ifdef FREERTOS
 /**
   * @brief  This function handles USART interrupt request.
   * @param  None
@@ -363,7 +354,6 @@ void setup_nvic(void)
   */
 void usart1_isr(void)
 {
-#ifdef FREERTOS
 	portBASE_TYPE task_woken;
 
 	if (USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
@@ -375,23 +365,10 @@ void usart1_isr(void)
 		else
 			USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
 	}
-#endif
 
-	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-	{
-		unsigned char ch = USART_ReceiveData(USART1);
-
-		if (ch == '\n')
-			USART_SendData(USART1, '\r');
-
-		USART_SendData(USART1, USART_ReceiveData(USART1));
-	}
-
-#ifdef FREERTOS
 	portEND_SWITCHING_ISR(task_woken);
-#endif
 }
-#ifndef FREERTOS
+#else
 /**
   * @brief  This function handles SysTick interrupt request
   * @param  None
@@ -400,8 +377,6 @@ void usart1_isr(void)
 void sys_tick_handler(void)
 {
 	tick++;
-	if (tick % 1000 == 0)
-		tprintf("tick: %d\r\n", tick);
 }
 
 /**

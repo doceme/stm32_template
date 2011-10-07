@@ -50,13 +50,11 @@ SECTIONS
 		_ebss = .;
 	} >ram AT >rom
 
-	/*
 	.stack : {
 		_stack = .;
-		*(.stack*)
+		*(.stack*)	/* Read-write initialized data */
 		_estack = .;
 	} >ram
-	*/
 
 	/*
 	 * The .eh_frame section appears to be used for C++ exception handling.

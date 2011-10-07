@@ -27,10 +27,10 @@ extern unsigned _etext, _data, _edata, _ebss;
 #define STACK_SIZE 1024
 #endif
 
-//__attribute__ ((section(".stack")))
+__attribute__ ((section(".stack")))
 unsigned long stack[STACK_SIZE / sizeof(unsigned long)];
 
-extern void main(void);
+void main(void);
 void reset_handler(void);
 void blocking_handler(void);
 void null_handler(void);
@@ -119,11 +119,7 @@ void WEAK dma2_channel4_5_isr(void);
 
 __attribute__ ((section(".vectors")))
 void (*const vector_table[]) (void) = {
-#if 1
 	(void *)((unsigned long)stack + sizeof(stack)),
-#else
-	(void *)&_estack,
-#endif
 	reset_handler,
 	nmi_handler,
 	hard_fault_handler,
